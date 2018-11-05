@@ -1,3 +1,3 @@
 # How to Use this Course
 
-Read the lecture material and complete the exercises.
+Read the [lecture material](lectures/) and complete the [exercises](exercises/).
