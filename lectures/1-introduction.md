@@ -3,7 +3,7 @@
 
 ## Curriculum
 
-* [History](#where-is-c-used-and-by-whom)
+* [History](#history)
 * [Where is C Used and by Whom?](#where-is-c-used-and-by-whom)
 * [Platforms and Portability](#platforms-and-portability)
 * [Syntax](#syntax)
