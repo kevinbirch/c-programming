@@ -3,22 +3,22 @@
 
 ## Curriculum
 
-* History
-* Where is C Used and by Whom?
-* Platforms and Portability
-* Syntax
-* Hello World
-* Operators
-* Fundamental Data Types
-* Identifiers
-* Variables
-* Functions
-* Formatted Output
-* Scope and Modularity
-* The Preprocessor
-* Documentation
-* Standard Libraries
-* A Double Precision Postfix Calculator
+* [History](#where-is-c-used-and-by-whom)
+* [Where is C Used and by Whom?](#where-is-c-used-and-by-whom)
+* [Platforms and Portability](#platforms-and-portability)
+* [Syntax](#syntax)
+* [Hello World](#hello-world)
+* [Operators](#operators)
+* [Fundamental Data Types](#fundamental-data-types)
+* [Identifiers](#identifiers)
+* [Variables](#variables)
+* [Functions](#functions)
+* [Formatted Output](#formatted-output)
+* [Scope and Modularity](#scope-and-modularity)
+* [The Preprocessor](#the-preprocessor)
+* [Documentation](#documentation)
+* [Standard Libraries](#standard-libraries)
+* [A Double Precision Postfix Calculator](#a-double-precision-postfix-calculator)
   
 ## History
 
