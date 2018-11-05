@@ -4,22 +4,22 @@
 ## Course Curriculum
 
 1. [Introduction](1-introduction.md)
-   * History
-   * Where is C Used and by Whom?
-   * Platforms and Portability
-   * Syntax
-   * Hello World
-   * Operators
-   * Fundamental Data Types
-   * Identifiers
-   * Variables
-   * Functions
-   * Formatted Output
-   * Scope and Modularity
-   * The Preprocessor
-   * Documentation
-   * Standard Libraries
-   * A Double Precision Postfix Calculator
+    * [History](1-introduction.md#history)
+    * [Where is C Used and by Whom?](1-introduction.md#where-is-c-used-and-by-whom)
+    * [Platforms and Portability](1-introduction.md#platforms-and-portability)
+    * [Syntax](1-introduction.md#syntax)
+    * [Hello World](1-introduction.md#hello-world)
+    * [Operators](1-introduction.md#operators)
+    * [Fundamental Data Types](1-introduction.md#fundamental-data-types)
+    * [Identifiers](1-introduction.md#identifiers)
+    * [Variables](1-introduction.md#variables)
+    * [Functions](1-introduction.md#functions)
+    * [Formatted Output](1-introduction.md#formatted-output)
+    * [Scope and Modularity](1-introduction.md#scope-and-modularity)
+    * [The Preprocessor](1-introduction.md#the-preprocessor)
+    * [Documentation](1-introduction.md#documentation)
+    * [Standard Libraries](1-introduction.md#standard-libraries)
+    * [A Double Precision Postfix Calculator](1-introduction.md#a-double-precision-postfix-calculator)
   
 2. Data Types
    * Structures, enums, unions and typedefs
