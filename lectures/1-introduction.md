@@ -19,6 +19,7 @@
 * [Documentation](#documentation)
 * [Standard Libraries](#standard-libraries)
 * [A Double Precision Postfix Calculator](#a-double-precision-postfix-calculator)
+* [Appendix: Specific Width Integers](#appendix-specific-width-integers)
   
 ## History
 
@@ -846,11 +847,11 @@ The POSIX standard defines a super-set of the C Standard Library, adding additio
 
 Now let's write some code!  We're going to make a command-line double precision postfix calculator using what we've learned so far.  This will be an interactive program to evaluate postfix arithmetic expressions.  So instead of writing:
 
-    (2 + 3) * (10 / 2)
+    >> (2 + 3) * (10 / 2)
 
 you would write:
 
-    2 3 + 10 2 / *
+    >> 2 3 + 10 2 / *
 
 for the same result.
 
@@ -858,21 +859,27 @@ The program will be interactive, providing a prompt for you to type postfix expr
 
 To quit the program, you type control-d.
 
-Make sure the compiler is installed on your computer run this in your terminal:
+### Getting Started
 
-    $ git clone https://gist.github.com/3c4a76dc3536c7dfe39d.git calc
-    $ cd calc
-    $ make
+Follow the directions in this [chapter's exercise README](../exercises/introduction/README.md).
 
-There should now be a executable program file in the current directory called `calc`.  It doesn't do much right now, but we'll fix that.  We're going to implement these functions:
+On your own machine run these commands to start a batteries-included shell:
+
+    $ cd `/path/to/c-programming/exercises/introduction`
+    $ docker run -it -v `pwd`:/projects/introduction -w /projects/introduction gcc:latest bash
+    # make
+
+There should now be a executable program file in the current directory called `calc`.  You can try it out by running:
+
+    ./calc
+
+It doesn't do much right now, but we'll fix that.  We're going to implement these functions in [`calc.c`](../exercises/introduction/calc.c):
 
 * `push`
 * `pop`
 * `peek`
 
 ...and the missing case handlers in the `main` function.
-
-T
 
 ## Appendix: Specific Width Integers
 

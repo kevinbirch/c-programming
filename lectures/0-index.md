@@ -20,6 +20,7 @@
     * [Documentation](1-introduction.md#documentation)
     * [Standard Libraries](1-introduction.md#standard-libraries)
     * [A Double Precision Postfix Calculator](1-introduction.md#a-double-precision-postfix-calculator)
+    * [Appendix: Specific Width Integers](#appendix-specific-width-integers)
   
 2. Data Types
    * Structures, enums, unions and typedefs
