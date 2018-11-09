@@ -1,8 +1,7 @@
-#include <stdbool.h>  // for bool type
 #include <stdio.h>    // for printf(), getchar(), ungetc(), etc
 #include <ctype.h>    // for isspace(), isdigit(), etc
 #include <stdlib.h>   // for strtod() and EXIT_SUCCESS
-#include <string.h>   // for memset()
+#include <string.h>   // for strlen(), etc
 
 #define MAX_REGISTERS 8
 #define MAX_DEPTH 64
