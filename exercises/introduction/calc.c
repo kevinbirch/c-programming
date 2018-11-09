@@ -116,6 +116,48 @@ static void view(Machine *machine)
     printf("\n");
 }
 
+static double add(double a, double b)
+{
+    return b + a;
+}
+
+static double subtract(double a, double b)
+{
+    return b - a;
+}
+
+static double multiply(double a, double b)
+{
+    return b * a;
+}
+
+static double divivde(double a, double b)
+{
+    return b / a;
+}
+
+static int binary_op(Machine *machine, double (*op)(double a, double b))
+{
+    double a, b = 0.0;
+
+    if(pop(machine->stack.entries, &machine->stack.top, &a))
+    {
+        return 1;
+    }
+    if(pop(machine->stack.entries, &machine->stack.top, &b))
+    {
+        push(machine->stack.entries, &machine->stack.top, a);
+        return 1;
+    }
+    if(push(machine->stack.entries, &machine->stack.top, op(a, b)))
+    {
+        push(machine->stack.entries, &machine->stack.top, b);
+        return 1;
+    }
+
+    return 0;
+}
+
 static void evaluate(Machine *machine, Instruction *expression, int length)
 {
     double a, b = 0.0;
@@ -138,66 +180,26 @@ static void evaluate(Machine *machine, Instruction *expression, int length)
                 machine->registers[instr->reference] = a;
                 break;
             case ADD:
-                if(pop(machine->stack.entries, &machine->stack.top, &a))
+                if(binary_op(machine, add))
                 {
-                    return;
-                }
-                if(pop(machine->stack.entries, &machine->stack.top, &b))
-                {
-                    push(machine->stack.entries, &machine->stack.top, a);
-                    return;
-                }
-                if(push(machine->stack.entries, &machine->stack.top, b + a))
-                {
-                    push(machine->stack.entries, &machine->stack.top, b);
                     return;
                 }
                 break;
             case SUBTRACT:
-                if(pop(machine->stack.entries, &machine->stack.top, &a))
+                if(binary_op(machine, subtract))
                 {
-                    return;
-                }
-                if(pop(machine->stack.entries, &machine->stack.top, &b))
-                {
-                    push(machine->stack.entries, &machine->stack.top, a);
-                    return;
-                }
-                if(push(machine->stack.entries, &machine->stack.top, b - a))
-                {
-                    push(machine->stack.entries, &machine->stack.top, b);
                     return;
                 }
                 break;
             case MULTIPLY:
-                if(pop(machine->stack.entries, &machine->stack.top, &a))
+                if(binary_op(machine, multiply))
                 {
-                    return;
-                }
-                if(pop(machine->stack.entries, &machine->stack.top, &b))
-                {
-                    push(machine->stack.entries, &machine->stack.top, a);
-                    return;
-                }
-                if(push(machine->stack.entries, &machine->stack.top, b * a))
-                {
-                    push(machine->stack.entries, &machine->stack.top, b);
                     return;
                 }
                 break;
             case DIVIDE:
-                if(pop(machine->stack.entries, &machine->stack.top, &a))
+                if(binary_op(machine, divivde))
                 {
-                    return;
-                }
-                if(pop(machine->stack.entries, &machine->stack.top, &b))
-                {
-                    push(machine->stack.entries, &machine->stack.top, a);
-                    return;
-                }
-                if(push(machine->stack.entries, &machine->stack.top, b / a))
-                {
-                    push(machine->stack.entries, &machine->stack.top, b);
                     return;
                 }
                 break;
@@ -211,13 +213,13 @@ static void evaluate(Machine *machine, Instruction *expression, int length)
                 }
                 break;
             case POP:
-                fprintf(stderr, "error: unsupported opcode POP.\n", instr->opcode);
+                fprintf(stderr, "error: unimplemented opcode POP.\n", instr->opcode);
                 return;
             case ROTATE:
-                fprintf(stderr, "error: unsupported opcode ROTATE.\n", instr->opcode);
+                fprintf(stderr, "error: unimplemented opcode ROTATE.\n", instr->opcode);
                 return;
             case DUPLICATE:
-                fprintf(stderr, "error: unsupported opcode DUPLICATE.\n", instr->opcode);
+                fprintf(stderr, "error: unimplemented opcode DUPLICATE.\n", instr->opcode);
                 return;
             default:
                 fprintf(stderr, "error: illegal opcode: %d.\n", instr->opcode);
