@@ -325,7 +325,15 @@ static void next_token(char *input, Token *token)
             token->kind = SLASH;
             break;
         case '`':
-            token->kind = QUOTE;
+            if(islower(*(input+1)))
+            {
+                token->kind = QUOTE;
+                token->length = 2;
+                break;
+            }
+
+            token->kind = ERROR;
+            fprintf(stderr, "error: quote must be followed by a lowercase letter.\n");
             break;
         case '!':
             token->kind = EXCLAMATION;
@@ -372,16 +380,9 @@ static int parse(char *input, Instruction *expression, int limit)
                 break;
             case SYMBOL:
             {
-                Token next;
-                next_token(input+1, &next);
-                if(WHITESPACE != next.kind && END_OF_INPUT != next.kind)
-                {
-                    fprintf(stderr, "error: register reference must be single lowercase letter ('a'-'%c').\n", MAX_REGISTER_IDENTIFER);
-                    return -1;
-                }
                 if('a' > *input || MAX_REGISTER_IDENTIFER < *input)
                 {
-                    fprintf(stderr, "error: register reference must be single lowercase letter ('a'-'%c').\n", MAX_REGISTER_IDENTIFER);
+                    fprintf(stderr, "error: register reference must be a lowercase letter 'a'-'%c'.\n", MAX_REGISTER_IDENTIFER);
                     return -1;
                 }
 
@@ -391,20 +392,12 @@ static int parse(char *input, Instruction *expression, int limit)
             }
             case QUOTE:
             {
-                Token next;
-                next_token(input+1, &next);
-                if(SYMBOL != next.kind)
-                {
-                    fprintf(stderr, "error: quote must be followed by a register reference.\n");
-                    return -1;
-                }
                 if('a' > *(input+1) || MAX_REGISTER_IDENTIFER < *(input+1))
                 {
-                    fprintf(stderr, "error: register reference must be single lowercase letter ('a'-'%c').\n", MAX_REGISTER_IDENTIFER);
+                    fprintf(stderr, "error: register reference must be a lowercase letter 'a'-'%c'.\n", MAX_REGISTER_IDENTIFER);
                     return -1;
                 }
 
-                token.length++;
                 instr.opcode = STORE;
                 instr.reference = *(input+1) - 'a';
                 break;
