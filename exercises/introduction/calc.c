@@ -86,6 +86,7 @@ static int push(double stack[], int *depth, double value)
 
 static int pop(double stack[], int *depth, double *value)
 {
+    *value = 0.0;
     return 0;
 }
 
