@@ -646,7 +646,7 @@ The ellipsis is legal syntax that means this function can take a variable number
 The `fprintf` function work exactly like `printf` but it allows you to specify the file to write to as the first argument.  It has this signature:
 
 ```c
-int printf(FILE *file, char * format, ...);
+int fprintf(FILE *file, char * format, ...);
 ```
 
 Unless you are writing to a file you have opened yourself, the most common value for the first argument of `fprintf` is `stderr`: for error messages to the user.
