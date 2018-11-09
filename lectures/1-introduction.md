@@ -37,7 +37,7 @@ C has been around for a long, long time and it continues to be used daily for ma
 
 Programs:
 
-* The compilers, interpreters and/or runtimes for: C, Python, Ruby, Java, Go, D, PHP, Perl, etc.
+* The compilers, interpreters and/or runtimes for: C, Python, Ruby, Java, D, PHP, Perl, etc.
 * git
 * The Linux kernel
 * Most operating systems (BSD, Windows, Mac OS)
