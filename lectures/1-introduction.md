@@ -54,7 +54,7 @@ Famous Programmers:
 
 ## Platforms and Portability
 
-Unlike some other modern languages that try to provide a consistent of the platform to the programmer, C directly exposes the capabilities (or lack thereof) of the host and operating system.  Therefore, there are are some important considerations that are not applicable to other languages.  Some of these are:
+Unlike some other modern languages that try to provide a consistent representation of the platform to the programmer, C directly exposes the capabilities (or lack thereof) of the host and operating system.  Therefore, there are are some important considerations that are not applicable to other languages.  Some of these are:
 
 * Compiler Standard Compliance - What version of the C standard does the compiler implement?  How complete, strict and tested is the conformance?
 * CPU Native Word Size - what is the bit width of a word? 16bit? 32bit? 64bit?
