@@ -15,6 +15,4 @@ Implement these functions in [`calc.c`](calc.c):
 
 * `push`
 * `pop`
-* `peek`
-
-...and the missing case handlers in the `main` function.
+* `drop`

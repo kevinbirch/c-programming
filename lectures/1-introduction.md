@@ -877,9 +877,7 @@ It doesn't do much right now, but we'll fix that.  We're going to implement thes
 
 * `push`
 * `pop`
-* `peek`
-
-...and the missing case handlers in the `main` function.
+* `drop`
 
 ## Appendix: Specific Width Integers
 

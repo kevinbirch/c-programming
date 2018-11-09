@@ -4,234 +4,505 @@
 #include <stdlib.h>   // for strtod() and EXIT_SUCCESS
 #include <string.h>   // for memset()
 
-static const int MAX_DEPTH = 64;
-static const int MAX_ATOM_LENGTH = 1024;
+#define MAX_REGISTERS 8
+#define MAX_DEPTH 64
 
-enum TOKEN
+static const char MAX_REGISTER_IDENTIFER = 'a'+MAX_REGISTERS-1;
+static const int  MAX_INPUT_LENGTH = 1024;
+static const int  MAX_EXRESSION_LENGTH = 64;
+
+enum token_kind_e
 {
     ERROR,
-    QUIT,
-    EOL,
+    END_OF_INPUT,
     WHITESPACE,
     NUMBER,
-    STORE,
+    SYMBOL,
+    QUOTE,
+    PLUS,
+    MINUS,
+    STAR,
+    SLASH,
+    EXCLAMATION,
+};
+
+typedef enum token_kind_e TokenKind;
+
+struct token_s
+{
+    TokenKind kind;
+    int       offset;
+    int       length;
+};
+
+typedef struct token_s Token;
+
+enum opcode_e
+{
+    NOOP,
     LOAD,
+    STORE,
     ADD,
     SUBTRACT,
     DIVIDE,
     MULTIPLY,
+    PUSH,
     POP,
-    PEEK
+    DROP,
+    ROTATE,
+    DUPLICATE,
 };
 
-typedef enum TOKEN token;
+typedef enum opcode_e Opcode;
 
-token get_token(char atom[]);
-void push(double stack[], int *depth, double value);
-double pop(double stack[], int *depth);
-double peek(double stack[], int depth);
-int read_number(char atom[]);
-int read_integer(char atom[], int i);
-
-int main(void)
+struct instruction_s
 {
-    double registers[26];    
-    double stack[MAX_DEPTH];
-    int depth = 0;
-    char atom[MAX_ATOM_LENGTH];
-    bool finished = false;
-    double a, b;
+    Opcode opcode;
+    union
+    {
+        double operand;
+        int    reference;
+    };
+};
 
-    for(int i = 0; i < 26; i++)
+typedef struct instruction_s Instruction;
+
+struct machine_s
+{
+    double registers[MAX_REGISTERS];
+
+    struct
     {
-        registers[i] = 0.0;
+        double entries[MAX_DEPTH];
+        int    top;
+    } stack;
+};
+
+typedef struct machine_s Machine;
+
+static int push(double stack[], int *depth, double value)
+{
+    return 0;
+}
+
+static int pop(double stack[], int *depth, double *value)
+{
+    return 0;
+}
+
+static void drop(double stack[], int *depth)
+{
+}
+
+static void view(Machine *machine)
+{
+    printf("registers: ");
+    for(int i = 0; i < MAX_REGISTERS; i++)
+    {
+        printf("[%c]: %.8g ", 'a'+i, machine->registers[i]);
     }
-    printf(">> ");
-    while(!finished)
+    printf("\n");
+    if(0 == machine->stack.top)
     {
-        switch(get_token(atom))
+        printf("stack: empty\n");
+        return;
+    }
+
+    printf("stack: ");
+    for(int i = 0; i < machine->stack.top; i++)
+    {
+        printf("%.8g ", machine->stack.entries[i]);
+    }
+    printf("\n");
+}
+
+static void evaluate(Machine *machine, Instruction *expression, int length)
+{
+    double a, b = 0.0;
+    for(int i = 0; i < length; i++)
+    {
+        Instruction *instr = &expression[i];
+        switch(instr->opcode)
+        {
+            case LOAD:
+                if(push(machine->stack.entries, &machine->stack.top, machine->registers[instr->reference]))
+                {
+                    return;
+                }
+                break;
+            case STORE:
+                if(pop(machine->stack.entries, &machine->stack.top, &a))
+                {
+                    return;
+                }
+                machine->registers[instr->reference] = a;
+                break;
+            case ADD:
+                if(pop(machine->stack.entries, &machine->stack.top, &a))
+                {
+                    return;
+                }
+                if(pop(machine->stack.entries, &machine->stack.top, &b))
+                {
+                    push(machine->stack.entries, &machine->stack.top, a);
+                    return;
+                }
+                if(push(machine->stack.entries, &machine->stack.top, b + a))
+                {
+                    push(machine->stack.entries, &machine->stack.top, b);
+                    return;
+                }
+                break;
+            case SUBTRACT:
+                if(pop(machine->stack.entries, &machine->stack.top, &a))
+                {
+                    return;
+                }
+                if(pop(machine->stack.entries, &machine->stack.top, &b))
+                {
+                    push(machine->stack.entries, &machine->stack.top, a);
+                    return;
+                }
+                if(push(machine->stack.entries, &machine->stack.top, b - a))
+                {
+                    push(machine->stack.entries, &machine->stack.top, b);
+                    return;
+                }
+                break;
+            case MULTIPLY:
+                if(pop(machine->stack.entries, &machine->stack.top, &a))
+                {
+                    return;
+                }
+                if(pop(machine->stack.entries, &machine->stack.top, &b))
+                {
+                    push(machine->stack.entries, &machine->stack.top, a);
+                    return;
+                }
+                if(push(machine->stack.entries, &machine->stack.top, b * a))
+                {
+                    push(machine->stack.entries, &machine->stack.top, b);
+                    return;
+                }
+                break;
+            case DIVIDE:
+                if(pop(machine->stack.entries, &machine->stack.top, &a))
+                {
+                    return;
+                }
+                if(pop(machine->stack.entries, &machine->stack.top, &b))
+                {
+                    push(machine->stack.entries, &machine->stack.top, a);
+                    return;
+                }
+                if(push(machine->stack.entries, &machine->stack.top, b / a))
+                {
+                    push(machine->stack.entries, &machine->stack.top, b);
+                    return;
+                }
+                break;
+            case DROP:
+                drop(machine->stack.entries, &machine->stack.top);
+                break;
+            case PUSH:
+                if(push(machine->stack.entries, &machine->stack.top, instr->operand))
+                {
+                    return;
+                }
+                break;
+            case POP:
+                fprintf(stderr, "error: unsupported opcode POP.\n", instr->opcode);
+                return;
+            case ROTATE:
+                fprintf(stderr, "error: unsupported opcode ROTATE.\n", instr->opcode);
+                return;
+            case DUPLICATE:
+                fprintf(stderr, "error: unsupported opcode DUPLICATE.\n", instr->opcode);
+                return;
+            default:
+                fprintf(stderr, "error: illegal opcode: %d.\n", instr->opcode);
+                return;
+        }
+    }
+}
+
+static int match_integer(char *input)
+{
+    int length = 0;
+
+    if('-' == input[length] || '+' == input[length])
+    {
+        length++;
+    }
+
+    while(isdigit(input[length]))
+    {
+        length++;
+    }
+
+    return length;
+}
+
+static int match_number(char *input)
+{
+    int length = match_integer(input);
+
+    if('.' == input[length])
+    {
+        length++;
+        length += match_integer(input+length);
+
+        if('e' == input[length] || 'E' == input[length])
+        {
+            length++;
+            length += match_integer(input+length);
+        }
+    }
+
+    return length;
+}
+
+static void next_token(char *input, Token *token)
+{
+    token->length = 1;
+
+    if(isspace(*input))
+    {
+        token->kind = WHITESPACE;
+
+        while(isspace(*(input+token->length+1)))
+        {
+            token->length++;
+        }
+
+        return;
+    }
+
+    if(isdigit(*input))
+    {
+        token->kind = NUMBER;
+        token->length = match_number(input);
+
+        return;
+    }
+
+    if(islower(*input))
+    {
+        token->kind = SYMBOL;
+
+        return;
+    }
+
+    switch(*input)
+    {
+        case '\0':
+            token->kind = END_OF_INPUT;
+            break;
+        case '+':
+            if(isdigit(*(input+1)))
+            {
+                token->kind = NUMBER;
+                token->length = match_number(input);
+                break;
+            }
+
+            token->kind = PLUS;
+            break;
+        case '-':
+            if(isdigit(*(input+1)))
+            {
+                token->kind = NUMBER;
+                token->length = match_number(input);
+                break;
+            }
+
+            token->kind = MINUS;
+            break;
+        case '*':
+            token->kind = STAR;
+            break;
+        case '/':
+            token->kind = SLASH;
+            break;
+        case '`':
+            token->kind = QUOTE;
+            break;
+        case '!':
+            token->kind = EXCLAMATION;
+            break;
+        default:
+            token->kind = ERROR;
+            fprintf(stderr, "error: unexpected '%c'.\n", *input);
+            break;
+    }
+}
+
+static int parse(char *input, Instruction *expression, int limit)
+{
+    size_t input_length = strlen(input);
+    int count = 0;
+
+    for(int i = 0; i < input_length;)
+    {
+        if(count == limit)
+        {
+            fprintf(stderr, "error: expression too long.\n");
+            return -1;
+        }
+
+        Token token;
+        token.offset = i;
+
+        next_token(input+i, &token);
+
+        Instruction instr;
+        instr.opcode = NOOP;
+
+        switch(token.kind)
         {
             case ERROR:
-                break;
-            case QUIT:
-                finished = true;
-                break;
-            case EOL:
-                printf(">> ");
+                return -1;
+            case END_OF_INPUT:
                 break;
             case WHITESPACE:
                 break;
             case NUMBER:
+                instr.opcode = PUSH;
+                instr.operand = strtod(input+i, NULL);
+                break;
+            case SYMBOL:
             {
-                char *endptr = atom;
-                a = strtod(atom, &endptr);
-                if(endptr == atom)
+                Token next;
+                next_token(input+1, &next);
+                if(WHITESPACE != next.kind && END_OF_INPUT != next.kind)
                 {
-                    fprintf(stderr, "error: %s is not a valid number.\n", atom);
-                    break;
+                    fprintf(stderr, "error: register reference must be single lowercase letter ('a'-'%c').\n", MAX_REGISTER_IDENTIFER);
+                    return -1;
                 }
-                push(stack, &depth, a);
+                if('a' > *input || MAX_REGISTER_IDENTIFER < *input)
+                {
+                    fprintf(stderr, "error: register reference must be single lowercase letter ('a'-'%c').\n", MAX_REGISTER_IDENTIFER);
+                    return -1;
+                }
+
+                instr.opcode = LOAD;
+                instr.reference = *input - 'a';
                 break;
             }
-            case STORE:
+            case QUOTE:
+            {
+                Token next;
+                next_token(input+1, &next);
+                if(SYMBOL != next.kind)
+                {
+                    fprintf(stderr, "error: quote must be followed by a register reference.\n");
+                    return -1;
+                }
+                if('a' > *(input+1) || MAX_REGISTER_IDENTIFER < *(input+1))
+                {
+                    fprintf(stderr, "error: register reference must be single lowercase letter ('a'-'%c').\n", MAX_REGISTER_IDENTIFER);
+                    return -1;
+                }
+
+                token.length++;
+                instr.opcode = STORE;
+                instr.reference = *(input+1) - 'a';
                 break;
-            case LOAD:
+            }
+            case PLUS:
+                instr.opcode = ADD;
                 break;
-            case ADD:
+            case MINUS:
+                instr.opcode = SUBTRACT;
                 break;
-            case SUBTRACT:
+            case STAR:
+                instr.opcode = MULTIPLY;
                 break;
-            case DIVIDE:
+            case SLASH:
+                instr.opcode = DIVIDE;
                 break;
-            case MULTIPLY:
+            case EXCLAMATION:
+                instr.opcode = DROP;
                 break;
-            case POP:
-                break;
-            case PEEK:
-                break;
+            default:
+                fprintf(stderr, "error: illegal token: %d.\n", token.kind);
+                return -1;
         }
+
+        i += token.length;
+        if(NOOP != instr.opcode)
+        {
+            expression[count++] = instr;
+        }
+    }
+
+    return count;
+}
+
+static int get_input(char buf[], int limit)
+{
+    printf(">> ");
+    fflush(stdout);
+
+    if(NULL == fgets(buf, limit, stdin))
+    {
+        if(feof(stdin))
+        {
+            return 2;
+        }
+        return 1;
+    }
+
+    size_t len = strlen(buf);
+    if('\n' != buf[len-1])
+    {
+        fprintf(stderr, "error: input too long.\n");
+        return 1;
+    }
+    buf[len-1] = '\0';
+
+    return 0;
+}
+
+int main(void)
+{
+    char        input[MAX_INPUT_LENGTH];
+    Instruction expression[MAX_EXRESSION_LENGTH];
+    Machine     machine;
+
+    for(int i = 0; i < MAX_REGISTERS; i++)
+    {
+        machine.registers[i] = 0.0;
+    }
+
+    for(int i = 0; i < MAX_DEPTH; i++)
+    {
+        machine.stack.entries[i] = 0.0;
+    }
+    machine.stack.top = 0;
+
+    while(1)
+    {
+        int result = get_input(input, MAX_INPUT_LENGTH);
+        if(2 == result)
+        {
+            printf("\nbye!\n");
+            break;
+        }
+        else if(result)
+        {
+            continue;
+        }
+
+        int expression_length = parse(input, expression, MAX_EXRESSION_LENGTH);
+        if(-1 == expression_length)
+        {
+            continue;
+        }
+
+        evaluate(&machine, expression, expression_length);
+        view(&machine);
     }
 
     return EXIT_SUCCESS;
-}
-
-void push(double stack[], int *depth, double value)
-{
-}
-
-double pop(double stack[], int *depth)
-{
-    return 0.0;
-}
-
-double peek(double stack[], int depth)
-{
-    return 0.0;
-}
-
-token get_token(char atom[])
-{
-    int reg;
-    int c = getchar();
-
-    if(EOF == c)
-    {
-        return QUIT;
-    }
-    if('\n' == c)
-    {
-        return EOL;
-    }
-    if(isspace(c))
-    {
-        return WHITESPACE;
-    }
-    if(isdigit(c) || '-' == c)
-    {
-        ungetc(c, stdin);
-        if(-1 == read_number(atom))
-        {
-            return ERROR;
-        }
-        return NUMBER;
-    }
-    switch(c)
-    {
-        case 's':
-        case '=':
-            reg = getchar();
-            if(!isalpha(reg))
-            {
-                fprintf(stderr, "error: store register operator `s` must be followed by a letter (a-z)\n");
-                return ERROR;
-            }
-            atom[0] = tolower(reg);
-            return STORE;
-        case 'l':
-        case ':':
-            reg = getchar();
-            if(!isalpha(reg))
-            {
-                fprintf(stderr, "error: load register operator `:` must be followed by a letter (a-z)\n");
-                return ERROR;
-            }
-            atom[0] = tolower(reg);
-            return LOAD;
-        case '+':
-            return ADD;
-        case '-':
-            return SUBTRACT;
-        case '/':
-            return DIVIDE;
-        case '*':
-            return MULTIPLY;
-        case 'p':
-        case '?':
-            return PEEK;
-        case 'P':
-        case '!':
-            return POP;
-        default:
-            fprintf(stderr, "error: the command '%c' is not supported.\n", c);
-            return ERROR;
-    }
-}
-
-#define CHECK_ATOM_LENGTH() if(MAX_ATOM_LENGTH <= i + 1)        \
-    {                                                           \
-        fprintf(stderr, "error: number too long.\n");           \
-        return -1;                                              \
-    }
-
-int read_number(char atom[])
-{
-    int i = 0;
-    int c;
-    
-    i = read_integer(atom, i);
-    if('.' == (c = getchar()))
-    {
-        CHECK_ATOM_LENGTH();
-        atom[i++] = '.';
-        i = read_integer(atom, i);
-    }
-    else
-    {
-        ungetc(c, stdin);
-    }
-    c = getchar();
-    if('e' == c || 'E' == c)
-    {
-        CHECK_ATOM_LENGTH();
-        atom[i++] = 'e';
-        i = read_integer(atom, i);
-    }
-    else
-    {
-        ungetc(c, stdin);
-    }
-    atom[i] = '\0';
-    return i;
-}
-
-int read_integer(char atom[], int i)
-{
-    int c = getchar();
-    if('-' == c || '+' == c)
-    {
-        CHECK_ATOM_LENGTH();
-        atom[i++] = c;
-    }
-    else
-    {
-        ungetc(c, stdin);
-    }
-    for(c = getchar(); isdigit(c); c = getchar())
-    {
-        CHECK_ATOM_LENGTH();
-        atom[i++] = c;
-    }
-    ungetc(c, stdin);
-
-    return i;
 }
