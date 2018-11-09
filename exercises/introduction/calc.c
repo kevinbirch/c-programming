@@ -345,6 +345,13 @@ static void next_token(char *input, Token *token)
     }
 }
 
+#define validate_symbol(VAL)                                            \
+    if('a' > (VAL) || MAX_REGISTER_IDENTIFER < (VAL))                   \
+    {                                                                   \
+        fprintf(stderr, "error: register reference must be a lowercase letter 'a'-'%c'.\n", MAX_REGISTER_IDENTIFER); \
+        return -1;                                                      \
+    }
+
 static int parse(char *input, Instruction *expression, int limit)
 {
     size_t input_length = strlen(input);
@@ -380,24 +387,14 @@ static int parse(char *input, Instruction *expression, int limit)
                 break;
             case SYMBOL:
             {
-                if('a' > *input || MAX_REGISTER_IDENTIFER < *input)
-                {
-                    fprintf(stderr, "error: register reference must be a lowercase letter 'a'-'%c'.\n", MAX_REGISTER_IDENTIFER);
-                    return -1;
-                }
-
+                validate_symbol(*input);
                 instr.opcode = LOAD;
                 instr.reference = *input - 'a';
                 break;
             }
             case QUOTE:
             {
-                if('a' > *(input+1) || MAX_REGISTER_IDENTIFER < *(input+1))
-                {
-                    fprintf(stderr, "error: register reference must be a lowercase letter 'a'-'%c'.\n", MAX_REGISTER_IDENTIFER);
-                    return -1;
-                }
-
+                validate_symbol(*(input+1));
                 instr.opcode = STORE;
                 instr.reference = *(input+1) - 'a';
                 break;
