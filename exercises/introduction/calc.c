@@ -389,16 +389,16 @@ static int parse(char *input, Instruction *expression, int limit)
                 break;
             case SYMBOL:
             {
-                validate_symbol(*input);
+                validate_symbol(*(input+i));
                 instr.opcode = LOAD;
-                instr.reference = *input - 'a';
+                instr.reference = *(input+i) - 'a';
                 break;
             }
             case QUOTE:
             {
-                validate_symbol(*(input+1));
+                validate_symbol(*(input+i+1));
                 instr.opcode = STORE;
-                instr.reference = *(input+1) - 'a';
+                instr.reference = *(input+i+1) - 'a';
                 break;
             }
             case PLUS:
