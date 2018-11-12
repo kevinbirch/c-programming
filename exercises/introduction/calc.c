@@ -272,7 +272,7 @@ static void next_token(char *input, Token *token)
     {
         token->kind = WHITESPACE;
 
-        while(isspace(*(input+token->length+1)))
+        while(isspace(*(input+token->length)))
         {
             token->length++;
         }
